@@ -1,4 +1,4 @@
-local cs = require 'https://raw.githubusercontent.com/expo/share.lua/2d850666da9ac1fb32489cf1090547b8b0b9dd4c/cs.lua'
+local cs = require 'cs'
 local server = cs.server
 
 local common = require 'common'
