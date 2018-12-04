@@ -24,8 +24,12 @@ do
     local nextId = 1
 
     function server.useCastleServer()
+        print("usecastleserver1")
         if castle then
+            print("usecastleserver 2")
             function castle.startServer(port)
+                print("start server")
+                print(port)
                 server.enabled = true
                 server.start(port)
             end
