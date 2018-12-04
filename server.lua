@@ -6,19 +6,24 @@ local common = require 'common'
 local W, H = 800, 600 -- Game world size
 
 --server.enabled = true
+print("above useCastleServer")
 server.useCastleServer()
+print("after useCastleServer")
 --server.start('22122')
 
 local share = server.share
 local homes = server.homes
+print("after locals")
 
 function server.load()
+    print("server load")
     share.scores = {}
     share.triangles = {}
     share.bullets = {}
 end
 
 function server.connect(clientId)
+    print("server connect")
     share.scores[clientId] = 0
     share.triangles[clientId] = {
         x = math.random(0, W),
@@ -36,6 +41,7 @@ function server.connect(clientId)
 end
 
 function server.disconnect(clientId)
+    print("server disconnect")
     share.scores[clientId] = nil
     share.triangles[clientId] = nil
 end
@@ -43,6 +49,7 @@ end
 local nextBulletId = 1 -- For choosing bullet ids
 
 function server.update(dt)
+    print("update")
     -- Triangles
     for clientId, tri in pairs(share.triangles) do
         local home = homes[clientId]
