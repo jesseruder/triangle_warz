@@ -7,9 +7,9 @@ local MOBILE = love.system.getOS() == 'iOS' or love.system.getOS() == 'Android'
 local W, H = 800, 600 -- Game world size
 local DISPLAY_SCALE = 1 -- Scale to draw graphics at w.r.t game world units
 
-local bulletSound = love.audio.newSource('assets/laser.wav', 'static')
-local smallExplosionSound = love.audio.newSource('assets/hurt.wav', 'static')
-local bigExplosionSound = love.audio.newSource('assets/explosion.wav', 'static')
+local bulletSound = nil
+local smallExplosionSound = nil
+local bigExplosionSound = nil
 
 --client.enabled = true
 client.useCastleServer()
@@ -24,6 +24,10 @@ function client.load()
     home.targetX, home.targetY = 0, 0
     home.wantShoot = false
     home.move = { up = false, down = false, left = false, right = false }
+    
+    bulletSound = love.audio.newSource('assets/laser.wav', 'static')
+    smallExplosionSound = love.audio.newSource('assets/hurt.wav', 'static')
+    bigExplosionSound = love.audio.newSource('assets/explosion.wav', 'static')
 end
 
 function client.mousemoved(x, y)
