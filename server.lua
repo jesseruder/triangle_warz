@@ -49,7 +49,6 @@ end
 local nextBulletId = 1 -- For choosing bullet ids
 
 function server.update(dt)
-    print("update")
     -- Triangles
     for clientId, tri in pairs(share.triangles) do
         local home = homes[clientId]
