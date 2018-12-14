@@ -82,6 +82,7 @@ function server.update(dt)
                 nextBulletId = nextBulletId + 1
                 tri.shootTimer = 0.2
                 server.send('all', 'bulletSound')
+                print("shot a bullet")
             end
 
             -- Check if we got shot...
