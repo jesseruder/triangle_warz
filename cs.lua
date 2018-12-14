@@ -4,7 +4,11 @@ local state = require 'state'
 local enet = require 'enet' -- Network
 local marshal = require 'marshal' -- Serialization
 local serpent = require 'https://raw.githubusercontent.com/pkulchenko/serpent/522a6239f25997b101c585c0daf6a15b7e37fad9/src/serpent.lua'
-
+local ffi = require 'ffi'
+ffi.cdef[[
+void ghostHeartbeat(int numConnectedPeers);
+]]
+local C = ffi.C
 
 
 local server = {}
@@ -22,6 +26,7 @@ do
     local peerToId = {}
     local idToPeer = {}
     local nextId = 1
+    local numConnectedPeers = 0
 
     function server.useCastleServer()
         print("usecastleserver1")
@@ -72,6 +77,7 @@ do
                     peerToId[event.peer] = id
                     idToPeer[id] = event.peer
                     homes[id] = {}
+                    numConnectedPeers = numConnectedPeers + 1
                     if server.connect then
                         server.connect(id)
                     end
@@ -90,6 +96,7 @@ do
                     homes[id] = nil
                     idToPeer[id] = nil
                     peerToId[event.peer] = nil
+                    numConnectedPeers = numConnectedPeers - 1
                 end
 
                 -- Received a request?
@@ -150,6 +157,8 @@ do
         if host then
             host:flush() -- Tell ENet to send outgoing messages
         end
+        
+        C.ghostHeartbeat(numConnectedPeers)
     end
 end
 
