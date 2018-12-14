@@ -158,7 +158,7 @@ do
             host:flush() -- Tell ENet to send outgoing messages
         end
         
-        C.ghostHeartbeat(1)
+        C.ghostHeartbeat(numConnectedPeers)
     end
 end
 
