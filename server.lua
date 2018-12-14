@@ -3,6 +3,12 @@ local server = cs.server
 
 local common = require 'common'
 
+local ffi = require 'ffi'
+ffi.cdef[[
+void ghostSetIsAcceptingPlayers(bool isAcceptingPlayers);
+]]
+local C = ffi.C
+
 local W, H = 800, 600 -- Game world size
 
 --server.enabled = true
@@ -83,6 +89,7 @@ function server.update(dt)
                 tri.shootTimer = 0.2
                 server.send('all', 'bulletSound')
                 print("shot a bullet")
+                C.ghostSetIsAcceptingPlayers(false)
             end
 
             -- Check if we got shot...
