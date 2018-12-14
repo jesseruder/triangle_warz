@@ -89,7 +89,7 @@ function server.update(dt)
                 tri.shootTimer = 0.2
                 server.send('all', 'bulletSound')
                 print("shot a bullet")
-                C.ghostSetIsAcceptingPlayers(false)
+                -- C.ghostSetIsAcceptingPlayers(false)
             end
 
             -- Check if we got shot...
