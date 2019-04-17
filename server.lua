@@ -11,6 +11,7 @@ local C = ffi.C
 
 local W, H = 800, 600 -- Game world size
 
+print("changes!!!!!")
 --server.enabled = true
 print("above useCastleServer")
 server.useCastleServer()
