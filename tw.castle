@@ -1,3 +1,5 @@
 main: combined.lua
 name: Triangle Warz
 username: jesse
+multiplayer:
+  enabled: true
