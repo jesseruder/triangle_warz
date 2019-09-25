@@ -12,7 +12,7 @@ local smallExplosionSound = nil
 local bigExplosionSound = nil
 
 --client.enabled = true
-client.useCastleServer()
+client.useCastleConfig()
 --client.start('207.254.45.246:22122') -- A remote server I test on
 --client.start('127.0.0.1:22122') -- Local server
 
