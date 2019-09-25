@@ -13,9 +13,9 @@ local W, H = 800, 600 -- Game world size
 
 print("changes!!!!!")
 --server.enabled = true
-print("above useCastleServer")
-server.useCastleServer()
-print("after useCastleServer")
+print("above useCastleConfig")
+server.useCastleConfig()
+print("after useCastleConfig")
 --server.start('22122')
 
 local share = server.share
