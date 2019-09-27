@@ -214,9 +214,9 @@ do
 
         if CASTLE_SERVER then -- On dedicated servers we need to periodically say we're alive
             local sessionTokens = {}
-            for k, v in pairs(idToSessionToken) do
-                table.insert(sessionTokens, v)
-            end
+            --for k, v in pairs(idToSessionToken) do
+            --    table.insert(sessionTokens, v)
+            --end
 
             castle.multiplayer.heartbeatV2(numClients, sessionTokens)
         end
