@@ -12,6 +12,9 @@ local DIFF_NIL = '__NIL' -- Sentinel to encode `nil`-ing in diffs -- TODO(nikki)
 local function nonempty(t) return next(t) ~= nil end
 
 
+local function serializable(v) return type(v) ~= 'userdata' end
+
+
 local Methods = {}
 
 
@@ -69,7 +72,8 @@ local function adopt(parent, name, t)
     if proxies[t] then -- Was already a node -- make sure it's orphaned and reuse
         node, proxy = t, proxies[t]
         assert(proxy.parent, 'tried to adopt a root node')
-        assert(proxies[proxy.parent].children[proxy.name] ~= t, 'tried to adopt an adopted node')
+        -- NOTE: For now, allowing this...
+        -- assert(proxies[proxy.parent].children[proxy.name] ~= t, 'tried to adopt an adopted node')
     else -- New node
         assert(not getmetatable(t), 'tried to adopt a table that has a metatable')
         node = newproxy(true)
@@ -112,14 +116,14 @@ local function adopt(parent, name, t)
                     local vChildren = vProxy and vProxy.children or v
                     local nSame, nNew, nRemove = 0, 0, 0
                     for kp in pairs(vChildren) do
-                        if childChildren[kp] then
+                        if childChildren[kp] ~= nil then
                             nSame = nSame + 1
                         else
                             nNew = nNew + 1
                         end
                     end
                     for kp in pairs(childChildren) do
-                        if not vChildren[kp] then
+                        if vChildren[kp] == nil then
                             nRemove = nRemove + 1
                         end
                     end
@@ -130,7 +134,7 @@ local function adopt(parent, name, t)
                             child[kp] = vp
                         end
                         for kp in pairs(childChildren) do
-                            if not vChildren[kp] then
+                            if vChildren[kp] == nil then
                                 child[kp] = nil
                             end
                         end
@@ -267,7 +271,7 @@ function Methods:__diff(client, exact, alreadyExact, caches)
                         if not exact then
                             ret[k] = DIFF_NIL
                         end
-                    else
+                    elseif serializable(v) then
                         ret[k] = v
                     end
                 end
@@ -288,7 +292,7 @@ function Methods:__diff(client, exact, alreadyExact, caches)
                     ret[k] = v:__diff(client, exact, alreadyExact, caches)
                 elseif v == nil then -- This can only happen if `not exact`
                     ret[k] = DIFF_NIL
-                else
+                elseif serializable(v) then
                     ret[k] = v
                 end
             end
@@ -305,7 +309,12 @@ function Methods:__flush(getDiff, client)
     local children, dirty, relevanceDescs = proxy.children, proxy.dirty, proxy.relevanceDescs
     if relevanceDescs then -- Always descend into relevance paths
         for k in pairs(relevanceDescs) do
-            children[k]:__flush()
+            local v = children[k]
+            if v ~= nil and proxies[v] then
+                v:__flush()
+            else -- It's not a child anymore -- remove from `relevanceDescs`
+                relevanceDescs[k] = nil
+            end
             dirty[k] = nil -- No need to visit again
         end
     end
@@ -327,6 +336,13 @@ function Methods:__flush(getDiff, client)
         local lastRelevancies = proxy.lastRelevancies
         for client in pairs(nextRelevancies) do
             lastRelevancies[client] = nextRelevancies[client]
+        end
+        for client in pairs(lastRelevancies) do
+            if not nextRelevancies[client] then
+                lastRelevancies[client] = nil
+            end
+        end
+        for client in pairs(nextRelevancies) do
             nextRelevancies[client] = nil
         end
     end

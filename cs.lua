@@ -29,7 +29,6 @@ do
     local host
     local peerToId = {}
     local idToPeer = {}
-    local idToSessionToken = {}
     local nextId = 1
     local numClients = 0
 
@@ -131,7 +130,6 @@ do
                         homes[id] = nil
                         idToPeer[id] = nil
                         peerToId[event.peer] = nil
-                        idToSessionToken[id] = nil
                         numClients = numClients - 1
                         if CASTLE_SERVER then
                             castle.setIsAcceptingClients(server.isAcceptingClients and
@@ -145,11 +143,6 @@ do
                     local id = peerToId[event.peer]
                     if id then
                         local request = marshal.decode(event.data)
-
-                        -- Session token?
-                        if request.sessionToken then
-                            idToSessionToken[id] = request.sessionToken
-                        end
 
                         -- Message?
                         if request.message and server.receive then
@@ -213,12 +206,7 @@ do
         end
 
         if CASTLE_SERVER then -- On dedicated servers we need to periodically say we're alive
-            local sessionTokens = {}
-            --for k, v in pairs(idToSessionToken) do
-            --    table.insert(sessionTokens, v)
-            --end
-
-            castle.multiplayer.heartbeatV2(numClients, sessionTokens)
+            castle.heartbeat(numClients)
         end
     end
 end
@@ -227,7 +215,6 @@ end
 local client = {}
 do
     client.enabled = false
-    client.sessionToken = nil
     client.sendRate = 35
     client.numChannels = 1
 
@@ -246,9 +233,8 @@ do
 
     function client.useCastleConfig()
         if castle then
-            function castle.startClient(address, sessionToken)
+            function castle.startClient(address)
                 client.enabled = true
-                client.sessionToken = sessionToken
                 client.start(address)
             end
         end
@@ -371,12 +357,7 @@ do
                         if client.connect then
                             client.connect()
                         end
-
-                        -- Send sessionToken now that we have an id
-                        peer:send(marshal.encode({
-                            sessionToken = client.sessionToken,
-                            exact = home:__diff(0, true)
-                        }))
+                        peer:send(marshal.encode({ exact = home:__diff(0, true) }))
                     end
 
                     -- Full?
